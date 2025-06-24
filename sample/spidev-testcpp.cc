@@ -3,9 +3,13 @@
 #include <string.h>
 #include <spidev_lib++.h>
 
-spi_config_t spi_config;
-uint8_t tx_buffer[32];
-uint8_t rx_buffer[32];
+#define CONTENT "hello world"
+#define RX_BUFFER_LEN 32
+#define TX_BUFFER_LEN 32
+
+static spi_config_t spi_config;
+static uint8_t tx_buffer[TX_BUFFER_LEN];
+static uint8_t rx_buffer[RX_BUFFER_LEN];
 
 
 int  main( void)
@@ -20,16 +24,17 @@ int  main( void)
 
   mySPI=new SPI("/dev/spidev1.0",&spi_config);
 
+
   if (mySPI->begin())
   {
-    memset(tx_buffer,0,32);
-    memset(rx_buffer,0,32);
-    sprintf((char*)tx_buffer,"hello world");
-    printf("sending %s, to spidev2.0 in full duplex \n ",(char*)tx_buffer); 
-    mySPI->xfer(tx_buffer,strlen((char*)tx_buffer),rx_buffer,strlen((char*)tx_buffer));
+    size_t content_len = sizeof(CONTENT);
+
+    memcpy(tx_buffer, CONTENT, content_len);
+    printf("sending %s, to spidev2.0 in full duplex \n ",tx_buffer);
+    mySPI->xfer(tx_buffer,content_len,rx_buffer,RX_BUFFER_LEN);
     printf("rx_buffer=%s\n",(char *)rx_buffer);
-    //mySPI->end();
-    delete mySPI; 
+    mySPI->end();
+    delete mySPI;
   }
  return 1;
 }

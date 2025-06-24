@@ -3,12 +3,16 @@
 #include <string.h>
 #include <spidev_lib.h>
 
-spi_config_t spi_config;
-uint8_t tx_buffer[32];
-uint8_t rx_buffer[32];
+#define CONTENT "hello world"
+#define RX_BUFFER_LEN 32
+#define TX_BUFFER_LEN 32
+
+static spi_config_t spi_config;
+static uint8_t tx_buffer[TX_BUFFER_LEN];
+static uint8_t rx_buffer[RX_BUFFER_LEN];
 
 
-void main( void)
+int main(int argc, const char **argv)
 {
   int spifd;
   spi_config.mode=0;
@@ -18,11 +22,12 @@ void main( void)
 
   spifd=spi_open("/dev/spidev2.0",spi_config);
 
-  memset(tx_buffer,0,32);
-  memset(rx_buffer,0,32);
-  sprintf(tx_buffer,"hello world");
-  printf("sending %s, to spidev2.0 in full duplex \n ",tx_buffer); 
-  spi_xfer(spifd,tx_buffer,strlen(tx_buffer),rx_buffer,strlen(tx_buffer));
+  size_t content_len = sizeof(CONTENT);
+
+  memcpy(tx_buffer, CONTENT, content_len);
+  printf("sending %s, to spidev2.0 in full duplex \n ",tx_buffer);
+  spi_xfer(spifd,tx_buffer,content_len,rx_buffer,RX_BUFFER_LEN);
   printf("rx_buffer=%s\n",rx_buffer);
-  spi_close(spifd); 
-  }
+  spi_close(spifd);
+  return 0;
+}

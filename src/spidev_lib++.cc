@@ -43,7 +43,7 @@ bool SPI::setBitPerWord(uint8_t p_bit){
 
     m_spiconfig.bits_per_word = p_bit;
    return true;
-   
+
 }
 bool SPI::setSpeed(uint32_t p_speed){
     /* Set SPI speed*/
@@ -79,7 +79,7 @@ bool SPI::setMode(uint8_t p_mode){
 int SPI::xfer(uint8_t *p_txbuffer, uint8_t p_txlen, uint8_t *p_rxbuffer, uint8_t p_rxlen){
     struct spi_ioc_transfer spi_message[1];
     memset(spi_message, 0, sizeof(spi_message));
-    
+
     spi_message[0].rx_buf = (unsigned long)p_rxbuffer;
     spi_message[0].tx_buf = (unsigned long)p_txbuffer;
     spi_message[0].len = p_txlen;
@@ -99,7 +99,7 @@ int SPI::write(uint8_t *p_txbuffer,uint8_t p_txlen){
 int SPI::read(uint8_t *p_rxbuffer,uint8_t p_rxlen){
     struct spi_ioc_transfer spi_message[1];
     memset(spi_message, 0, sizeof(spi_message));
-    
+
     spi_message[0].rx_buf = (unsigned long)p_rxbuffer;
     spi_message[0].len = p_rxlen;
     return ioctl(m_spifd, SPI_IOC_MESSAGE(1), spi_message);
@@ -112,7 +112,7 @@ bool SPI::begin(){
     if (m_spidev == NULL)
        return false;
     m_spifd = open(m_spidev, O_RDWR);
-  
+
     if (m_spifd < 0) {
         return false;
     }
@@ -150,13 +150,18 @@ bool SPI::begin(){
 
     return true;
 
-  
+
 }
+
+bool SPI::end(void) {
+    return true;
+}
+
 SPI::SPI(const char * p_spidev){
   m_spidev = NULL;
   if (p_spidev != NULL ){
       m_spidev = (char *)malloc(strlen(p_spidev)+1);
-      if (m_spidev != NULL) 
+      if (m_spidev != NULL)
          strcpy(m_spidev,p_spidev);
   }
    m_open = false;
@@ -166,7 +171,7 @@ SPI::SPI(const char * p_spidev, spi_config_t *p_spi_config){
   m_spidev = NULL;
   if (p_spidev != NULL ){
       m_spidev = (char *)malloc(strlen(p_spidev)+1);
-      if (m_spidev != NULL) 
+      if (m_spidev != NULL)
          strcpy(m_spidev,p_spidev);
   }
   if (p_spi_config != NULL){
@@ -177,7 +182,7 @@ SPI::SPI(const char * p_spidev, spi_config_t *p_spi_config){
 	m_spiconfig.speed = 1000000;
 	m_spiconfig.bits_per_word = 8;
 	m_spiconfig.delay = 0;
-		
+
   }
  m_open = false;
 }
@@ -215,12 +220,12 @@ bool SPI::setConfig(spi_config_t *p_spi_config){
              close(m_spifd);
           return false;
           }
-  
+
         /* Set SPI speed*/
           if (ioctl(m_spifd, SPI_IOC_WR_MAX_SPEED_HZ, &m_spiconfig.speed) < 0) {
              close(m_spifd);
           return false;
-          } 
+          }
           if (ioctl(m_spifd, SPI_IOC_RD_MAX_SPEED_HZ, &m_spiconfig.speed) < 0) {
              close(m_spifd);
           return false;
