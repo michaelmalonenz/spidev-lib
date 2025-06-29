@@ -25,6 +25,7 @@
 #include <errno.h>
 #include <sys/ioctl.h>
 #include <string.h>
+#include <iostream>
 
 #include <linux/spi/spidev.h>
 
@@ -92,8 +93,12 @@ int SPI::write(uint8_t *p_txbuffer,uint8_t p_txlen){
     spi_message[0].tx_buf = (unsigned long)p_txbuffer;
     spi_message[0].len = p_txlen;
 
-    return ioctl(m_spifd, SPI_IOC_MESSAGE(1), spi_message);
-
+    int result = ioctl(m_spifd, SPI_IOC_MESSAGE(1), spi_message);
+    if (result < 0)
+    {
+        std::cerr << "SPI::write failed" << std::endl;
+    }
+    return result;
 }
 
 int SPI::read(uint8_t *p_rxbuffer,uint8_t p_rxlen){
